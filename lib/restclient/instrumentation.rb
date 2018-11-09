@@ -13,7 +13,7 @@ module RestClient
         @propagate_spans = propagate_spans
 
         patch_request
-        patch_transmit
+        patch_transmit if propagate_spans
       end
 
       def patch_request

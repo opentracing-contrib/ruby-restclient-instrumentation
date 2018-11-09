@@ -1,8 +1,6 @@
 # Restclient::Instrumentation
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/restclient/instrumentation`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem provides instrumentation for RestClient requests.
 
 ## Installation
 
@@ -22,7 +20,19 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+To enable the instrumentation and patch RestClient:
+
+```ruby
+require 'restclient/instrumentation'
+
+RestClient::Instrumentation.instrument
+```
+
+`instrument` takes two optional parameters:
+- `tracer`: set an OpenTracing tracer to use.
+  Defaults to `OpenTracing.global_tracer`.
+- `propagate_spans`: Enable propagating spans through request headers.
+  Defaults to `true`.
 
 ## Development
 
@@ -32,7 +42,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/restclient-instrumentation.
+Bug reports and pull requests are welcome on GitHub at https://github.com/signalfx/ruby-restclient-instrumentation.
 
 ## License
 
