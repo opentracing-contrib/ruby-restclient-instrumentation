@@ -6,11 +6,10 @@ module RestClient
   module Instrumentation
     class << self
 
-      attr_accessor :tracer, :propagate_spans
+      attr_accessor :tracer
 
       def instrument(tracer: OpenTracing.global_tracer, propagate_spans: true)
         @tracer = tracer
-        @propagate_spans = propagate_spans
 
         patch_request
         patch_transmit if propagate_spans
@@ -25,14 +24,18 @@ module RestClient
             tags = {
               'span.kind' => 'client',
               'http.method' => method,
+              'http.url' => url,
             }
 
             result = nil
             ::RestClient::Instrumentation.tracer.start_active_span("#{method} #{url}") do |scope|
 
-              @span_context = scope.span.context if ::RestClient::Instrumentation.propagate_span?
+              @span_context = scope.span.context
 
+              # todo handle sending spans even when this exits with exception
               result = execute_original(& block)
+
+              scope.span.set_tag("http.status_code", result.code)
             end
 
             result
@@ -52,10 +55,6 @@ module RestClient
           end # transmit
         end # class_eval
       end # patch_transmit
-
-      def propagate_span?
-        @propagate_spans
-      end
     end # class << self
   end # module Instrumentation
 end # module RestClient
