@@ -28,14 +28,24 @@ module RestClient
             }
 
             result = nil
-            ::RestClient::Instrumentation.tracer.start_active_span("#{method} #{url}") do |scope|
 
-              @span_context = scope.span.context
+            span = ::RestClient::Instrumentation.tracer.start_span("restclient.execute")
+            begin
+              # make this available to the transmit method to inject the context
+              @span_context = span.context
 
-              # todo handle sending spans even when this exits with exception
               result = execute_original(& block)
 
-              scope.span.set_tag("http.status_code", result.code)
+              span.set_tag("http.status_code", result.code)
+            rescue => error
+              span.set_tag("http.status_code", error.http_code)
+              span.set_tag("error", true)
+              span.set_tag("message", error.message)
+
+              # pass this along for the original caller to handle
+              raise error
+            ensure
+              span.finish()
             end
 
             result
