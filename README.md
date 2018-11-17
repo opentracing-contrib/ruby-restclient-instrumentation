@@ -31,7 +31,7 @@ RestClient::Instrumentation.instrument
 `instrument` takes two optional parameters:
 - `tracer`: set an OpenTracing tracer to use.
   Defaults to `OpenTracing.global_tracer`.
-- `propagate_spans`: Enable propagating spans through request headers.
+- `propagate`: Enable propagating span contexts through request headers.
   Defaults to `true`.
 
 In the case of an error, the span will be finished and tagged with the error code and message. However, the exception will still be passed up to the caller, and the caller must handle it or at least wait as long as the exporter's flush interval to ensure that the span gets exported.

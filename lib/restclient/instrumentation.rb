@@ -8,11 +8,11 @@ module RestClient
 
       attr_accessor :tracer
 
-      def instrument(tracer: OpenTracing.global_tracer, propagate_spans: true)
+      def instrument(tracer: OpenTracing.global_tracer, propagate: true)
         @tracer = tracer
 
         patch_request
-        patch_transmit if propagate_spans
+        patch_transmit if propagate
       end
 
       def patch_request
