@@ -40,7 +40,7 @@ module RestClient
             rescue => error
               span.set_tag("http.status_code", error.http_code)
               span.set_tag("error", true)
-              span.set_tag("message", error.message)
+              span.set_log_kv(key: "message", value: error.message)
 
               # pass this along for the original caller to handle
               raise error
