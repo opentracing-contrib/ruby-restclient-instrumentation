@@ -20,7 +20,7 @@ module RestClient
         ::RestClient::Request.class_eval do
           alias_method :execute_original, :execute
 
-          def execute(& block)
+          def execute(&block)
             tags = {
               'span.kind' => 'client',
               'http.method' => method,
@@ -34,13 +34,13 @@ module RestClient
               # make this available to the transmit method to inject the context
               @span_context = span.context
 
-              result = execute_original(& block)
+              result = execute_original(&block)
 
               span.set_tag("http.status_code", result.code)
             rescue => error
               span.set_tag("http.status_code", error.http_code)
               span.set_tag("error", true)
-              span.set_log_kv(key: "message", value: error.message)
+              span.log_kv(key: "message", value: error.message)
 
               # pass this along for the original caller to handle
               raise error
