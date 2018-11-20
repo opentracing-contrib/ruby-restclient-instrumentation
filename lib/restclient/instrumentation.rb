@@ -29,7 +29,7 @@ module RestClient
 
             result = nil
 
-            span = ::RestClient::Instrumentation.tracer.start_span("restclient.execute")
+            span = ::RestClient::Instrumentation.tracer.start_span("restclient.execute", tags: tags)
             begin
               # make this available to the transmit method to inject the context
               @span_context = span.context
