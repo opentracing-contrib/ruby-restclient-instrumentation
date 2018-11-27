@@ -10,7 +10,7 @@ RSpec.describe RestClient::Instrumentation do
 
   before do
     OpenTracing.global_tracer = tracer
-    RestClient::Instrumentation.instrument(tracer: tracer)
+    RestClient::Instrumentation.instrument(tracer: tracer, propagate: true)
   end
 
   describe :instrument do
