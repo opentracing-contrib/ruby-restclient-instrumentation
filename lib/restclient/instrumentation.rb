@@ -8,7 +8,7 @@ module RestClient
 
       attr_accessor :tracer
 
-      def instrument(tracer: OpenTracing.global_tracer, propagate: true)
+      def instrument(tracer: OpenTracing.global_tracer, propagate: false)
         @tracer = tracer
 
         patch_request
