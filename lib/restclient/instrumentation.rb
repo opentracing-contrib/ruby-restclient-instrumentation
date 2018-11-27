@@ -18,7 +18,7 @@ module RestClient
       def patch_request
 
         ::RestClient::Request.class_eval do
-          alias_method :execute_original, :execute
+          alias_method :execute_original, :execute if !self.method_defined? :execute_original
 
           def execute(&block)
             tags = {
@@ -56,10 +56,10 @@ module RestClient
       def patch_transmit
         ::RestClient::Request.class_eval do
 
-          alias_method :transmit_original, :transmit
+          alias_method :transmit_original, :transmit if !self.method_defined? :transmit_original
 
           def transmit(uri, req, payload, &block)
-            OpenTracing.inject(@span_context, OpenTracing::FORMAT_RACK, req) if @span_context
+            ::RestClient::Instrumentation.tracer.inject(@span_context, OpenTracing::FORMAT_RACK, req) if @span_context
 
             transmit_original(uri, req, payload, &block)
           end # transmit
