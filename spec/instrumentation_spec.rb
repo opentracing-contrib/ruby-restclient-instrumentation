@@ -70,44 +70,15 @@ RSpec.describe RestClient::Instrumentation do
       it 'adds a http.status_code tag' do
         expect(span.tags.fetch('http.status_code')).to eq 200
       end
-
-#       it 'propagates the span' do
-#         expect(tracer).to receive(:inject)
-#         allow_any_instance_of(RestClient::Request).to receive(:transmit_original).and_return(response) 
-
-#         RestClient::Request.execute(method: :get, url: url)
-#       end
     end
 
     context 'when transmit is called' do
-      # before do
-      # end
-
       it 'injects the span context' do
-        # stub_request(:get, url)
-        # allow_any_instance_of(RestClient::Request).to receive(:transmit_original).and_return(response)
-        # allow_any_instance_of(RestClient::Request).to receive(:transmit_original)) do |uri, req, payload, &block|
-        #   puts "patched"
-        #   puts uri
-        #   puts req
-        #   puts payload
-        #   # expect(req).to eq {}
-          
-        #   # it 'populates request_properly' do
-        #   #   expect(req).to eq {}
-        #   # end
+        # create a new request to test propagation
+        propagate_request = RestClient::Request.new(method: :get, url: url)
+        expect(propagate_request).to respond_to(:transmit_original) # sanity check
 
-        #   puts response || "nil"
-        #   response
-        # end
-
-        # expect(tracer).to receive
-        # RestClient::Request.new.execute(method: :get, url: url)
-        new_request = RestClient::Request.new(method: :get, url: url)
-        expect(new_request).to respond_to(:transmit_original)
-
-        # allow(new_request).to receive(:transmit_original).and_return(response)
-        allow(new_request).to receive(:transmit_original) do |uri, req, payload, &block|
+        allow(propagate_request).to receive(:transmit_original) do |uri, req, payload, &block|
           fake_request = RestClient::Request.new(method: :get, url: url)
 
           # ugly way of getting the span headers from this method. req is a Net::HTTP::Request,
@@ -121,8 +92,8 @@ RSpec.describe RestClient::Instrumentation do
           RestClient::Response.create("body", net_response, fake_request)
         end
 
-        response_new = new_request.execute
-        net_response = response_new.net_http_res
+        # we only care about the doctored Net::HTTPResponse with the headers to test
+        net_response = propagate_request.execute.net_http_res
         span = tracer.spans.last
 
         # test for the span headers
